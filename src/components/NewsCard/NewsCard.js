@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState, useEffect, createRef } from 'react'
+import classNames from 'classnames'
 import {
   Card,
   CardActions,
@@ -12,10 +13,31 @@ import useStyles from './styles'
 const NewsCard = ({
   articles: { description, publishedAt, source, title, url, urlToImage },
   i,
+  activeArticle,
 }) => {
   const classes = useStyles()
+  const [elRef, setElRef] = useState([])
+  const scrollToRef = (ref) => window.scroll(0, ref.current.offsetTop - 50)
+  useEffect(() => {
+    setElRef((refs) =>
+      Array(20)
+        .fill()
+        .map((_, j) => refs[j] || createRef()),
+    )
+  }, [])
+  useEffect(() => {
+    if (i === activeArticle && elRef[activeArticle]) {
+      scrollToRef(elRef[activeArticle])
+    }
+  }, [i, activeArticle, elRef])
   return (
-    <Card className={classes.card}>
+    <Card
+      ref={elRef[i]}
+      className={classNames(
+        classes.card,
+        activeArticle === i ? classes.activeCard : null,
+      )}
+    >
       <CardActionArea href={url} target="_blank">
         <CardMedia
           className={classes.media}
